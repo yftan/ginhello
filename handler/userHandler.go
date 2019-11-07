@@ -9,16 +9,16 @@ import (
 
 func UserSave(context *gin.Context) {
 	userName := context.Param("name")
-	context.String(http.StatusOK, "用户" + userName + "已保存")
+	context.String(http.StatusOK, "用户"+userName+"已保存")
 }
 
 func UserSaveQuery(context *gin.Context) {
 	userName := context.Query("name")
 	userAge := context.Query("age")
-	context.String(http.StatusOK, "用户:" + userName +",年龄:" + userAge + "已保存")
+	context.String(http.StatusOK, "用户:"+userName+",年龄:"+userAge+"已保存")
 }
 
-func UserRegister( context *gin.Context ) {
+func UserRegister(context *gin.Context) {
 	// 第一种写法
 	//user := new(model.UserModel)
 	//if err := context.ShouldBind(user); err != nil {
@@ -47,11 +47,18 @@ func UserRegister( context *gin.Context ) {
 	context.Redirect(http.StatusMovedPermanently, "/")
 }
 
-func UserLogin( context *gin.Context) {
+func UserLogin(context *gin.Context) {
 	var user model.UserModel
 	if err := context.ShouldBind(&user); err != nil {
 		log.Println("err ->", err.Error())
 		context.String(http.StatusBadRequest, "登陆用户信息绑定失败")
 	}
-	user.QueryByEmail()
+	u := user.QueryByEmail()
+	if u.Password == user.Password {
+		log.Print("登陆成功：", user.Email)
+		context.HTML(http.StatusOK, "index.tmpl", gin.H{
+			"email": u.Email,
+		})
+	}
+
 }
